@@ -1,5 +1,11 @@
 package org.example.config;
 
+import jakarta.transaction.Transactional;
+import org.example.entity.Role;
+import org.example.entity.Tool;
+import org.example.repository.RoleRepository;
+import org.example.repository.ToolRepository;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebMvc
@@ -41,4 +48,38 @@ public class WebConfig {
         bean.setOrder(-102);
         return bean;
     }
+    @Bean
+    @Transactional
+    CommandLineRunner seedData(RoleRepository roleRepo, ToolRepository toolRepo) {
+        return args -> {
+
+            List<String> roleNames = List.of("admin","manager","vl specialist","kl specialist","pro","rtu");
+            for (String rn : roleNames) {
+                roleRepo.findByName(rn).orElseGet(() -> roleRepo.save(new Role(rn)));
+            }
+
+            Map<String,List<String>> roleTools = Map.of(
+                    "admin", List.of("user‐mgmt","system‐config"),
+                    "manager", List.of("reporting","team‐overview"),
+                    "vl specialist", List.of("vl‐tool1","vl‐tool2"),
+                    "kl specialist", List.of("kl‐tool1","kl‐tool2"),
+                    "pro",           List.of("pro‐tool"),
+                    "rtu",           List.of("rtu‐monitor")
+            );
+
+            for (var entry : roleTools.entrySet()) {
+                Role role = roleRepo.findByName(entry.getKey()).get();
+                for (String toolName : entry.getValue()) {
+                    // avoid duplicates
+                    if (role.getTools().stream().noneMatch(t -> t.getName().equals(toolName))) {
+                        Tool t = new Tool();
+                        t.setName(toolName);
+                        t.setRole(role);
+                        toolRepo.save(t);
+                    }
+                }
+            }
+        };
+    }
+
 }

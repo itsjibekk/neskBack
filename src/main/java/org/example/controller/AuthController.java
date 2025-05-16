@@ -39,6 +39,7 @@ public class AuthController {
         user.setToken(userAuthProvider.createToken(user));
         return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
     }
+
     @PostMapping("/refresh-token")
     public ResponseEntity<TokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();

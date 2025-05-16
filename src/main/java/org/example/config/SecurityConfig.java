@@ -27,8 +27,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests ->
                         requests
                                 .requestMatchers(HttpMethod.POST, "/login", "/register").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/transformers/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/roles").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/users").hasRole("admin")
+                                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("admin")
                                 .anyRequest().authenticated()
                 );
+
         return http.build();
     }
 }
