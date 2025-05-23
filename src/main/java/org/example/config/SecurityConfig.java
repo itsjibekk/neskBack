@@ -28,6 +28,8 @@ public class SecurityConfig {
                         requests
                                 .requestMatchers(HttpMethod.POST, "/login", "/register").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/transformers/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/pes/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/res/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/roles").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/api/users").hasRole("admin")
                                 .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("admin")

@@ -1,5 +1,6 @@
 package org.example.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.CredentialsDto;
 import org.example.dto.SignUpDto;
@@ -8,6 +9,7 @@ import org.example.entity.Role;
 import org.example.entity.User;
 import org.example.exception.AppException;
 import org.example.mapper.UserMapper;
+import org.example.repository.RoleRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,15 +20,17 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final RoleRepository roleRepository;
 
     public UserDto login(CredentialsDto credentialsDto){
-        User user =  userRepository.findByLogin(credentialsDto.login()).orElseThrow(() -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
-
+        User user = userRepository.findByLoginWithRoles(credentialsDto.login())
+                .orElseThrow(() -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
         if(passwordEncoder.matches(CharBuffer.wrap(credentialsDto.password()),
                 user.getPassword())){
             return  userMapper.toUserDto(user);
@@ -46,9 +50,10 @@ public class UserService {
         Date date = new Date();
         java.sql.Date sqlDate = new java.sql.Date(date.getTime());
         user.setCreatedOn(sqlDate);
-        Set<Role> set = new HashSet<>();
-        set.add(new Role("manager"));
-        user.setRoles(set);
+        Role role = roleRepository.findByName("user")
+                .orElseThrow(() -> new AppException("Role not found", HttpStatus.INTERNAL_SERVER_ERROR));
+
+        user.setRoles(Set.of(role));
         user.setPassword(passwordEncoder.encode(CharBuffer.wrap(signUpDto.password())));
         User savedUser = userRepository.save(user);
         return userMapper.toUserDto(savedUser);

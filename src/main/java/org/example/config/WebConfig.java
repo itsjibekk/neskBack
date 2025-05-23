@@ -5,12 +5,15 @@ import org.example.entity.Role;
 import org.example.entity.Tool;
 import org.example.repository.RoleRepository;
 import org.example.repository.ToolRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -50,7 +53,7 @@ public class WebConfig {
     }
     @Bean
     @Transactional
-    CommandLineRunner seedData(RoleRepository roleRepo, ToolRepository toolRepo) {
+    CommandLineRunner seedData(RoleRepository roleRepo, ToolRepository toolRepo,@Qualifier("transactionManager") PlatformTransactionManager txManager) {
         return args -> {
 
             List<String> roleNames = List.of("admin","manager","vl specialist","kl specialist","pro","rtu");

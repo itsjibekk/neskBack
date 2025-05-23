@@ -77,8 +77,6 @@ public class UserAuthProvider {
         return new UsernamePasswordAuthenticationToken(user, null, authorities);
     }
 
-
-    // UserAuthProvider.java
     public Authentication validateTokenStrongly(String token) {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 

@@ -51,6 +51,13 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
     private boolean isPublicEndpoint(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/login") || path.startsWith("/register");
+        return path.startsWith("/login")
+                || path.startsWith("/register")
+                || (request.getMethod().equals("GET") && (
+                path.startsWith("/api/transformers")
+                        || path.startsWith("/api/pes") || path.startsWith("/api/res")
+
+        ));
     }
+
 }
